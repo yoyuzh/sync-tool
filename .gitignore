@@ -1,0 +1,8 @@
+.env
+wireguard-clients/
+.DS_Store
+node_modules/
+dist/
+dist-electron/
+coverage/
+*.log

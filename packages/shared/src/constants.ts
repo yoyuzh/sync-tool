@@ -1,0 +1,5 @@
+export const HISTORY_RETENTION_DAYS = 15;
+export const HISTORY_MAX_STORAGE_BYTES = 5 * 1024 * 1024 * 1024;
+export const INLINE_FILE_MAX_BYTES = 10 * 1024 * 1024;
+export const DEFAULT_RECENT_HISTORY_LIMIT = 20;
+
