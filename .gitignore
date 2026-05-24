@@ -6,6 +6,7 @@ node_modules/
 .playwright-cli/
 dist/
 dist-electron/
+apps/desktop/release/
 coverage/
 *.log
 data/
