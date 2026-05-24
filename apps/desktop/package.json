@@ -3,14 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "dist-electron/main.js",
+  "main": "dist-electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "pnpm run build:renderer && pnpm run build:electron",
     "build:renderer": "vite build",
-    "build:electron": "tsup electron/main.ts electron/preload.ts --format esm --platform node --out-dir dist-electron --clean",
+    "build:electron": "tsup --config tsup.config.ts",
+    "package:mac": "pnpm run build && electron-builder --config electron-builder.json --mac",
+    "package:win": "pnpm run build && electron-builder --config electron-builder.json --win",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "tsc -p tsconfig.json --noEmit"
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@sync-tool/shared": "workspace:*",
@@ -22,10 +25,11 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.1.1",
+    "electron-builder": "^26.0.12",
     "electron": "^38.7.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
-    "vite": "^7.2.1"
+    "vite": "^7.2.1",
+    "vitest": "^4.1.7"
   }
 }
-

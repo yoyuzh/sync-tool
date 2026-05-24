@@ -1,0 +1,21 @@
+services:
+  sync-tool-server:
+    image: sync-tool-server:0.1.0
+    build:
+      context: ..
+      dockerfile: apps/server/Dockerfile
+    container_name: sync-tool-server
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    environment:
+      SYNC_SERVER_HOST: "0.0.0.0"
+      SYNC_SERVER_PORT: "8787"
+      SYNC_STORAGE_PATH: /var/lib/sync-tool/data
+      SYNC_RETENTION_DAYS: "${SYNC_RETENTION_DAYS:-15}"
+      SYNC_MAX_STORAGE_BYTES: "${SYNC_MAX_STORAGE_BYTES:-52428800}"
+    volumes:
+      - sync-tool-data:/var/lib/sync-tool/data
+
+volumes:
+  sync-tool-data:

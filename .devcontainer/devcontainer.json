@@ -1,0 +1,20 @@
+{
+  "name": "sync-tool-cs",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/workspaces/sync-tool-cs",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspaces/sync-tool-cs,type=bind,consistency=cached"
+  ],
+  "postCreateCommand": "corepack enable && pnpm install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}

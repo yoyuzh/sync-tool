@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-electron
+.pnpm-store
+.playwright-cli
+coverage
+data
+output
+.git
+.DS_Store
+*.log

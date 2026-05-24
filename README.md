@@ -8,6 +8,7 @@ This repository contains:
 - `apps/desktop`: Electron desktop client for macOS and Windows
 - `packages/shared`: shared protocol types and constants
 - `docs/`: product and engineering documentation
+- `原型/`: local frontend prototypes and design references
 
 ## Workspace
 
@@ -32,4 +33,3 @@ pnpm typecheck
 
 - This repo replaces the temporary KDE Connect exploration workspace.
 - Sensitive local artifacts like `.env` and `wireguard-clients/` are intentionally ignored.
-

@@ -2,7 +2,11 @@
 wireguard-clients/
 .DS_Store
 node_modules/
+.pnpm-store/
+.playwright-cli/
 dist/
 dist-electron/
 coverage/
 *.log
+data/
+output/

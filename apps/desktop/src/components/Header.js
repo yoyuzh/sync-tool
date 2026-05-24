@@ -1,0 +1,4 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+export function Header({ onlineCount, connectionLabel, onOpenSettings }) {
+    return (_jsxs("header", { className: "app-header drag-region", children: [_jsxs("div", { className: "brand-lockup", children: [_jsx("div", { className: "brand-mark no-drag", "aria-hidden": "true", title: "ClipBridge", children: "CB" }), _jsxs("div", { className: "brand-info", children: [_jsx("h1", { className: "brand-title", children: "ClipBridge" }), _jsxs("div", { className: "presence-row", children: [_jsx("span", { className: "presence-dot" }), _jsxs("span", { children: [connectionLabel, " \u00B7 ", onlineCount, " \u53F0\u8BBE\u5907\u5728\u7EBF"] })] })] })] }), _jsx("button", { type: "button", className: "icon-button no-drag", onClick: onOpenSettings, title: "\u8BBE\u7F6E", children: "S" })] }));
+}

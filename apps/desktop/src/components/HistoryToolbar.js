@@ -1,0 +1,6 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+const RANGE_OPTIONS = [15, 7, 3, 1];
+export const TOOLBAR_CAPTURE_BUTTON_LABEL = "+ 捕获";
+export function HistoryToolbar({ viewMode, searchQuery, historyRange, onSearchChange, onRangeChange, onPublish, onReconnect }) {
+    return (_jsxs("section", { className: `toolbar toolbar--${viewMode}`, children: [_jsxs("label", { className: "search-field", children: [_jsx("span", { className: "field-icon", "aria-hidden": "true", children: "Q" }), _jsx("input", { type: "search", value: searchQuery, onChange: (event) => onSearchChange(event.target.value), placeholder: viewMode === "desktop" ? "搜索剪贴板历史..." : "搜索历史..." })] }), _jsxs("div", { className: "toolbar-actions", children: [_jsx("select", { className: "range-select", value: historyRange, onChange: (event) => onRangeChange(Number(event.target.value)), title: "\u65F6\u95F4\u8303\u56F4", children: RANGE_OPTIONS.map((range) => (_jsxs("option", { value: range, children: ["\u6700\u8FD1 ", range, " \u5929"] }, range))) }), viewMode === "desktop" && (_jsx("button", { type: "button", className: "primary-button toolbar__publish", onClick: onPublish, children: TOOLBAR_CAPTURE_BUTTON_LABEL })), _jsx("button", { type: "button", className: "secondary-button", onClick: onReconnect, title: "\u91CD\u65B0\u8FDE\u63A5\u670D\u52A1\u5668", children: "R" })] })] }));
+}
