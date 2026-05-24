@@ -39,6 +39,7 @@ describe("ShortcutRegistry", () => {
       globalShortcutPublish: "Control+Command+C",
       globalShortcutPasteLatestOnline: "Command+Shift+V",
       notificationPreviewEnabled: false,
+      openWindowAfterCopyVerificationCode: false,
       maxLocalHistoryItems: 200
     });
 
@@ -59,5 +60,38 @@ describe("ShortcutRegistry", () => {
     expect(onOpenPanel).toHaveBeenCalledTimes(1);
     expect(onPublishCurrent).toHaveBeenCalledTimes(1);
     expect(onPasteLatestOnline).toHaveBeenCalledTimes(1);
+  });
+
+  it("notifies listeners when registration status changes", async () => {
+    const { ShortcutRegistry } = await import("../electron/shortcuts/shortcutRegistry");
+    const onStatusChanged = vi.fn();
+    const registry = new ShortcutRegistry({
+      onOpenPanel: vi.fn(),
+      onPublishCurrent: vi.fn(),
+      onPasteLatestOnline: vi.fn(),
+      onFailure: vi.fn(),
+      onStatusChanged
+    });
+
+    registry.register({
+      serverUrl: "http://127.0.0.1:8787",
+      deviceName: "Desktop",
+      deviceId: "desktop-1",
+      clipboardPollingEnabled: true,
+      clipboardPollingIntervalMs: 1200,
+      autoPublishEnabled: false,
+      globalShortcutOpen: "Control+Alt+V",
+      globalShortcutPublish: "Control+Alt+C",
+      globalShortcutPasteLatestOnline: "Control+Shift+V",
+      notificationPreviewEnabled: false,
+      openWindowAfterCopyVerificationCode: false,
+      maxLocalHistoryItems: 200
+    });
+
+    expect(onStatusChanged).toHaveBeenCalledWith({
+      open: { accelerator: "Control+Alt+V", registered: true, conflict: false },
+      publish: { accelerator: "Control+Alt+C", registered: true, conflict: false },
+      pasteLatestOnline: { accelerator: "Control+Shift+V", registered: true, conflict: false }
+    });
   });
 });

@@ -1,4 +1,5 @@
 import { useEffect, useState, type MouseEvent } from "react";
+import { acceleratorFromKeyEvent } from "../lib/shortcutAccelerator";
 import type { DesktopSettings, ShortcutRegistrationStatus } from "../types/syncToolApi";
 
 interface SettingsPanelProps {
@@ -64,6 +65,21 @@ export function SettingsPanel({
       globalShortcutOpen: openShortcut.trim(),
       globalShortcutPasteLatestOnline: pasteLatestOnlineShortcut.trim()
     });
+  }
+
+  function updatePublishShortcut(value: string) {
+    setPublishShortcut(value);
+    void onUpdateSettings({ globalShortcutPublish: value.trim() });
+  }
+
+  function updateOpenShortcut(value: string) {
+    setOpenShortcut(value);
+    void onUpdateSettings({ globalShortcutOpen: value.trim() });
+  }
+
+  function updatePasteLatestOnlineShortcut(value: string) {
+    setPasteLatestOnlineShortcut(value);
+    void onUpdateSettings({ globalShortcutPasteLatestOnline: value.trim() });
   }
 
   function stopPanelClick(event: MouseEvent<HTMLElement>) {
@@ -140,9 +156,9 @@ export function SettingsPanel({
             <h3>快捷键</h3>
             <label className="settings-field">
               <span>发送当前剪贴板</span>
-              <input
+              <ShortcutCaptureInput
                 value={publishShortcut}
-                onChange={(event) => setPublishShortcut(event.target.value)}
+                onChange={updatePublishShortcut}
                 placeholder="Control+Command+C"
               />
             </label>
@@ -150,9 +166,9 @@ export function SettingsPanel({
 
             <label className="settings-field">
               <span>打开面板</span>
-              <input
+              <ShortcutCaptureInput
                 value={openShortcut}
-                onChange={(event) => setOpenShortcut(event.target.value)}
+                onChange={updateOpenShortcut}
                 placeholder="Control+Command+V"
               />
             </label>
@@ -160,9 +176,9 @@ export function SettingsPanel({
 
             <label className="settings-field">
               <span>粘贴最近线上内容</span>
-              <input
+              <ShortcutCaptureInput
                 value={pasteLatestOnlineShortcut}
-                onChange={(event) => setPasteLatestOnlineShortcut(event.target.value)}
+                onChange={updatePasteLatestOnlineShortcut}
                 placeholder="Command+Shift+V"
               />
             </label>
@@ -179,6 +195,39 @@ export function SettingsPanel({
         </div>
       </aside>
     </div>
+  );
+}
+
+function ShortcutCaptureInput({
+  value,
+  onChange,
+  placeholder
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <input
+      className="shortcut-capture-input"
+      value={value}
+      onChange={() => undefined}
+      onKeyDown={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.key === "Backspace" || event.key === "Delete") {
+          onChange("");
+          return;
+        }
+
+        const nextAccelerator = acceleratorFromKeyEvent(event.nativeEvent);
+        if (nextAccelerator) {
+          onChange(nextAccelerator);
+        }
+      }}
+      placeholder={placeholder}
+      readOnly
+    />
   );
 }
 

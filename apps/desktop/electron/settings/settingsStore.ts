@@ -18,6 +18,12 @@ export interface DesktopSettings {
   maxLocalHistoryItems: number;
 }
 
+export interface ShortcutDefaults {
+  globalShortcutOpen: string;
+  globalShortcutPublish: string;
+  globalShortcutPasteLatestOnline: string;
+}
+
 interface SettingsFile extends DesktopSettings {
   deviceToken?: string;
   deviceTokenServerUrl?: string;
@@ -132,10 +138,17 @@ function applyShortcutDefaults(settings: Partial<SettingsFile>): SettingsFile {
     merged.globalShortcutOpen = defaults.globalShortcutOpen;
   }
 
+  if (isLegacyMacShortcutSet(merged) && process.platform !== "darwin") {
+    merged.globalShortcutOpen = defaults.globalShortcutOpen;
+    merged.globalShortcutPublish = defaults.globalShortcutPublish;
+    merged.globalShortcutPasteLatestOnline = defaults.globalShortcutPasteLatestOnline;
+  }
+
   return merged;
 }
 
 function createDefaultSettings(): SettingsFile {
+  const shortcutDefaults = getDefaultShortcutSettings();
   return {
     serverUrl: "http://127.0.0.1:8787",
     deviceName: os.hostname() || "Desktop",
@@ -143,9 +156,7 @@ function createDefaultSettings(): SettingsFile {
     clipboardPollingEnabled: true,
     clipboardPollingIntervalMs: 1200,
     autoPublishEnabled: false,
-    globalShortcutOpen: "Control+Command+V",
-    globalShortcutPublish: "Control+Command+C",
-    globalShortcutPasteLatestOnline: "Command+Shift+V",
+    ...shortcutDefaults,
     notificationPreviewEnabled: false,
     openWindowAfterCopyVerificationCode: false,
     maxLocalHistoryItems: 200
@@ -153,6 +164,7 @@ function createDefaultSettings(): SettingsFile {
 }
 
 function sanitizeSettings(settings: SettingsFile): SettingsFile {
+  const shortcutDefaults = getDefaultShortcutSettings();
   return {
     serverUrl: typeof settings.serverUrl === "string" ? settings.serverUrl : "http://127.0.0.1:8787",
     deviceName: typeof settings.deviceName === "string" ? settings.deviceName : "Desktop",
@@ -167,19 +179,45 @@ function sanitizeSettings(settings: SettingsFile): SettingsFile {
     globalShortcutOpen:
       typeof settings.globalShortcutOpen === "string"
         ? settings.globalShortcutOpen
-        : "Control+Command+V",
+        : shortcutDefaults.globalShortcutOpen,
     globalShortcutPublish:
       typeof settings.globalShortcutPublish === "string"
         ? settings.globalShortcutPublish
-        : "Control+Command+C",
+        : shortcutDefaults.globalShortcutPublish,
     globalShortcutPasteLatestOnline:
       typeof settings.globalShortcutPasteLatestOnline === "string"
         ? settings.globalShortcutPasteLatestOnline
-        : "Command+Shift+V",
+        : shortcutDefaults.globalShortcutPasteLatestOnline,
     notificationPreviewEnabled: Boolean(settings.notificationPreviewEnabled),
     openWindowAfterCopyVerificationCode: Boolean(settings.openWindowAfterCopyVerificationCode),
     maxLocalHistoryItems: clampNumber(settings.maxLocalHistoryItems, 20, 2000, 200)
   };
+}
+
+export function getDefaultShortcutSettings(
+  platform: NodeJS.Platform = process.platform
+): ShortcutDefaults {
+  if (platform === "darwin") {
+    return {
+      globalShortcutOpen: "Control+Command+V",
+      globalShortcutPublish: "Control+Command+C",
+      globalShortcutPasteLatestOnline: "Command+Shift+V"
+    };
+  }
+
+  return {
+    globalShortcutOpen: "Control+Alt+V",
+    globalShortcutPublish: "Control+Alt+C",
+    globalShortcutPasteLatestOnline: "Control+Shift+V"
+  };
+}
+
+function isLegacyMacShortcutSet(settings: SettingsFile): boolean {
+  return (
+    settings.globalShortcutOpen === "Control+Command+V" &&
+    settings.globalShortcutPublish === "Control+Command+C" &&
+    settings.globalShortcutPasteLatestOnline === "Command+Shift+V"
+  );
 }
 
 function clampNumber(value: unknown, min: number, max: number, fallback: number): number {

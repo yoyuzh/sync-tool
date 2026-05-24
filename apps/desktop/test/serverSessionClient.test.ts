@@ -249,6 +249,79 @@ describe("ServerSessionClient", () => {
       "server-device-1"
     );
   });
+
+  it("publishes source-file records without inline file path content", async () => {
+    let requestBody: unknown;
+    vi.stubGlobal("fetch", async (_url: unknown, init?: RequestInit) => {
+      requestBody = init?.body ? JSON.parse(String(init.body)) : undefined;
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          record: {
+            id: "file-record-1",
+            createdAt: "2026-05-24T00:00:00.000Z",
+            updatedAt: "2026-05-24T00:00:00.000Z",
+            sourceDeviceId: "server-device-1",
+            kind: "document",
+            title: "note.txt",
+            textPreview: "/Users/mac/Desktop/note.txt",
+            mimeType: "text/plain",
+            sizeBytes: 27,
+            storageMode: "source_file",
+            publishState: "published",
+            contentHash: "file-hash"
+          },
+          acceptedAt: "2026-05-24T00:00:00.000Z"
+        })
+      };
+    });
+
+    const settingsStore = {
+      get: vi.fn(async () => ({
+        serverUrl: "http://127.0.0.1:8787",
+        deviceName: "Desktop",
+        deviceId: "server-device-1",
+        clipboardPollingEnabled: true,
+        clipboardPollingIntervalMs: 1200,
+        autoPublishEnabled: false as const,
+        globalShortcutOpen: "CommandOrControl+Shift+V",
+        globalShortcutPublish: "CommandOrControl+Shift+U",
+        globalShortcutPasteLatestOnline: "Command+Shift+V",
+        notificationPreviewEnabled: false,
+        openWindowAfterCopyVerificationCode: false,
+        maxLocalHistoryItems: 200
+      })),
+      getDeviceToken: vi.fn(async () => "token-1"),
+      clearDeviceToken: vi.fn(),
+      setDeviceToken: vi.fn(),
+      setDeviceRegistration: vi.fn()
+    };
+    const { ServerSessionClient } = await import("../electron/server/serverSessionClient");
+    type ServerSessionClientOptions = ConstructorParameters<typeof ServerSessionClient>[0];
+    type SettingsStoreLike = ServerSessionClientOptions["settingsStore"];
+    const client = new ServerSessionClient({
+      settingsStore: settingsStore as unknown as SettingsStoreLike,
+      onStatusChanged: vi.fn(),
+      onRemoteRecord: vi.fn()
+    });
+
+    await client.publish({
+      id: "file-record-1",
+      createdAt: "2026-05-24T00:00:00.000Z",
+      sourceDeviceId: "server-device-1",
+      kind: "document",
+      title: "note.txt",
+      textPreview: "/Users/mac/Desktop/note.txt",
+      mimeType: "text/plain",
+      sizeBytes: 27,
+      storageMode: "source_file",
+      publishState: "local",
+      contentHash: "file-hash"
+    });
+
+    expect((requestBody as { record: { textContent?: string } }).record.textContent).toBeUndefined();
+  });
 });
 
 function makeSettings() {

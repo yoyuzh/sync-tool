@@ -37,6 +37,8 @@ const api: SyncToolApi = {
   },
   events: {
     onHistoryChanged: (listener) => subscribe<ClipboardRecord[]>(IPC_CHANNELS.eventHistoryChanged, listener),
+    onShortcutsChanged: (listener) =>
+      subscribe<ShortcutRegistrationStatus>(IPC_CHANNELS.eventShortcutsChanged, listener),
     onNotification: (listener) => subscribe<NotificationItem>(IPC_CHANNELS.eventNotification, listener)
   }
 };

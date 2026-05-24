@@ -26,6 +26,11 @@ export class LocalHistoryStore {
     return this.records.find((record) => record.id === recordId) ?? null;
   }
 
+  async getByContentHash(contentHash: string): Promise<ClipboardRecord | null> {
+    await this.ensureLoaded();
+    return this.records.find((record) => record.contentHash === contentHash) ?? null;
+  }
+
   async addLocalDraft(draft: ClipboardRecordDraft): Promise<ClipboardRecord> {
     const record: ClipboardRecord = {
       ...draft,

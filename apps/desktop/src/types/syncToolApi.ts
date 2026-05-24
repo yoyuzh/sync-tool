@@ -67,6 +67,7 @@ export interface SyncToolApi {
   };
   events: {
     onHistoryChanged(listener: (records: ClipboardRecord[]) => void): Unsubscribe;
+    onShortcutsChanged(listener: (status: ShortcutRegistrationStatus) => void): Unsubscribe;
     onNotification(listener: (item: DesktopNotificationItem) => void): Unsubscribe;
   };
 }

@@ -6,6 +6,7 @@ interface ShortcutRegistryOptions {
   onPublishCurrent: () => void;
   onPasteLatestOnline: () => void;
   onFailure: (message: string) => void;
+  onStatusChanged?: (status: ShortcutRegistrationStatus) => void;
 }
 
 export interface ShortcutRegistrationStatus {
@@ -39,6 +40,7 @@ export class ShortcutRegistry {
         this.options.onPasteLatestOnline
       )
     };
+    this.options.onStatusChanged?.(this.status);
     return this.status;
   }
 

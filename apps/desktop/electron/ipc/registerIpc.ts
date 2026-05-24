@@ -134,6 +134,13 @@ export function emitConnectionChanged(
   win?.webContents.send(IPC_CHANNELS.eventConnectionChanged, status);
 }
 
+export function emitShortcutsChanged(
+  win: BrowserWindow | null,
+  status: ReturnType<ShortcutRegistry["getStatus"]>
+): void {
+  win?.webContents.send(IPC_CHANNELS.eventShortcutsChanged, status);
+}
+
 export function emitNotification(win: BrowserWindow | null, item: NotificationItem): void {
   win?.webContents.send(IPC_CHANNELS.eventNotification, item);
 }

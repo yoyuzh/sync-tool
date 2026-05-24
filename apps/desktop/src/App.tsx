@@ -77,6 +77,7 @@ export default function App() {
       setRecords(mapRecords(nativeRecords));
     });
     const unsubscribeConnection = syncTool.connection.onStatusChanged(setConnectionStatus);
+    const unsubscribeShortcuts = syncTool.events.onShortcutsChanged(setShortcutStatus);
     const unsubscribeNotification = syncTool.events.onNotification((item) => {
       setNotifications((current) => [item, ...current].slice(0, 3));
     });
@@ -84,6 +85,7 @@ export default function App() {
     return () => {
       unsubscribeHistory();
       unsubscribeConnection();
+      unsubscribeShortcuts();
       unsubscribeNotification();
     };
   }, [loadNativeState, syncTool]);
@@ -114,8 +116,19 @@ export default function App() {
       return;
     }
 
-    await syncTool.clipboard.captureCurrent();
-  }, [syncTool]);
+    const record = await syncTool.clipboard.captureCurrent();
+    if (!record) {
+      pushToast("捕获失败", "剪贴板没有可捕获的文本、图片或文件");
+      return;
+    }
+
+    try {
+      await syncTool.history.publish(record.id);
+      pushToast("发送成功", "当前剪贴板已发送到服务器");
+    } catch {
+      pushToast("发送失败", "服务端暂不可用，记录已保留在本地");
+    }
+  }, [pushToast, syncTool]);
 
   const copyRecord = useCallback(
     async (recordId: string) => {
@@ -205,9 +218,15 @@ export default function App() {
         return;
       }
 
+      const serverUrlChanged = typeof patch.serverUrl === "string";
       const nextSettings = await syncTool.settings.update(patch);
       setSettings(nextSettings);
       setShortcutStatus(await syncTool.settings.shortcuts());
+      if (!serverUrlChanged) {
+        pushToast("设置已保存", "已应用到本机");
+        return;
+      }
+
       pushToast("设置已保存", "正在检查服务器连接");
 
       try {

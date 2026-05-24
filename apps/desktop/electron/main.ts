@@ -7,6 +7,7 @@ import { LocalHistoryStore } from "./history/localHistoryStore";
 import {
   emitConnectionChanged,
   emitHistoryChanged,
+  emitShortcutsChanged,
   emitNotification,
   registerIpc
 } from "./ipc/registerIpc";
@@ -111,7 +112,8 @@ app.whenReady().then(async () => {
     onPasteLatestOnline: () => {
       void pasteLatestOnlineRecord();
     },
-    onFailure: (message) => notificationService.showStatus("快捷键不可用", message)
+    onFailure: (message) => notificationService.showStatus("快捷键不可用", message),
+    onStatusChanged: (status) => emitShortcutsChanged(mainWindow, status)
   });
 
   const trayService = new TrayService({

@@ -794,6 +794,11 @@ img {
   box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent) 16%, transparent);
 }
 
+.shortcut-capture-input {
+  cursor: default;
+  font-family: ui-monospace, monospace;
+}
+
 .settings-save {
   align-self: flex-start;
 }

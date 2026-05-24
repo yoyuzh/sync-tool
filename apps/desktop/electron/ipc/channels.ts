@@ -12,6 +12,7 @@ export const IPC_CHANNELS = {
   connectionReconnect: "sync-tool:connection:reconnect",
   eventHistoryChanged: "sync-tool:event:history-changed",
   eventConnectionChanged: "sync-tool:event:connection-changed",
+  eventShortcutsChanged: "sync-tool:event:shortcuts-changed",
   eventNotification: "sync-tool:event:notification"
 } as const;
 

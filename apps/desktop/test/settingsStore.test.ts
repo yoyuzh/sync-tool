@@ -36,6 +36,21 @@ describe("SettingsStore", () => {
     expect(persisted).toContain('"globalShortcutPasteLatestOnline": "Command+Shift+V"');
   });
 
+  it("uses platform-specific default shortcuts", async () => {
+    const { getDefaultShortcutSettings } = await import("../electron/settings/settingsStore");
+
+    expect(getDefaultShortcutSettings("darwin")).toEqual({
+      globalShortcutOpen: "Control+Command+V",
+      globalShortcutPublish: "Control+Command+C",
+      globalShortcutPasteLatestOnline: "Command+Shift+V"
+    });
+    expect(getDefaultShortcutSettings("win32")).toEqual({
+      globalShortcutOpen: "Control+Alt+V",
+      globalShortcutPublish: "Control+Alt+C",
+      globalShortcutPasteLatestOnline: "Control+Shift+V"
+    });
+  });
+
   it("persists the server-assigned device id with the device token", async () => {
     const { SettingsStore } = await import("../electron/settings/settingsStore");
     const dir = await mkdtemp(path.join(os.tmpdir(), "clipbridge-settings-"));
