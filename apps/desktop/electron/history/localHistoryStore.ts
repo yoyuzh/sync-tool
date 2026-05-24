@@ -72,6 +72,13 @@ export class LocalHistoryStore {
     await this.merge({ ...record, publishState: "published" });
   }
 
+  async remove(recordId: string): Promise<void> {
+    await this.ensureLoaded();
+    await this.enqueueWrite(() => {
+      this.records = this.records.filter((record) => record.id !== recordId);
+    });
+  }
+
   private async ensureLoaded(): Promise<void> {
     if (this.loaded) {
       return;

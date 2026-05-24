@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type {
+  ApiErrorResponse,
   ClipboardRecord,
   ClipboardRecordDraft,
   ConnectionStatus,
@@ -114,6 +115,15 @@ export class ServerSessionClient {
       },
       body: JSON.stringify(request)
     });
+
+    if (response.status === 409) {
+      const existing = await this.fetchExistingRecord(settings.serverUrl, token, record.id);
+      if (existing) {
+        return existing;
+      }
+
+      throw new Error("发布冲突：记录已存在但无法读取");
+    }
 
     if (!response.ok) {
       throw new Error(`发布失败：${response.status}`);
@@ -257,6 +267,25 @@ export class ServerSessionClient {
   private setStatus(status: ConnectionStatus): void {
     this.status = status;
     this.options.onStatusChanged(status);
+  }
+
+  private async fetchExistingRecord(
+    serverUrl: string,
+    token: string,
+    recordId: string
+  ): Promise<ClipboardRecord | null> {
+    const response = await fetch(new URL(`${API_V1_PREFIX}/records/${recordId}`, serverUrl), {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload = (await response.json()) as { record?: ClipboardRecord } | ApiErrorResponse;
+    return "record" in payload && payload.record ? payload.record : null;
   }
 }
 

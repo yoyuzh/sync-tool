@@ -322,6 +322,89 @@ describe("ServerSessionClient", () => {
 
     expect((requestBody as { record: { textContent?: string } }).record.textContent).toBeUndefined();
   });
+
+  it("loads the existing record when publish returns 409 conflict", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 409,
+        json: async () => ({
+          error: {
+            code: "conflict",
+            message: "Record id already exists with a different request"
+          }
+        })
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          record: {
+            id: "record-409",
+            createdAt: "2026-05-24T00:00:00.000Z",
+            updatedAt: "2026-05-24T00:00:00.000Z",
+            sourceDeviceId: "server-device-1",
+            kind: "text",
+            title: "Hello",
+            textPreview: "Hello",
+            textContent: "Hello",
+            sizeBytes: 5,
+            storageMode: "metadata_only",
+            publishState: "published",
+            contentHash: "hash-409"
+          }
+        })
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const settingsStore = {
+      get: vi.fn(async () => ({
+        serverUrl: "http://127.0.0.1:8787",
+        deviceName: "Desktop",
+        deviceId: "server-device-1",
+        clipboardPollingEnabled: true,
+        clipboardPollingIntervalMs: 1200,
+        autoPublishEnabled: false as const,
+        globalShortcutOpen: "CommandOrControl+Shift+V",
+        globalShortcutPublish: "CommandOrControl+Shift+U",
+        globalShortcutPasteLatestOnline: "Command+Shift+V",
+        notificationPreviewEnabled: false,
+        openWindowAfterCopyVerificationCode: false,
+        maxLocalHistoryItems: 200
+      })),
+      getDeviceToken: vi.fn(async () => "token-1"),
+      clearDeviceToken: vi.fn(),
+      setDeviceToken: vi.fn(),
+      setDeviceRegistration: vi.fn()
+    };
+    const { ServerSessionClient } = await import("../electron/server/serverSessionClient");
+    type ServerSessionClientOptions = ConstructorParameters<typeof ServerSessionClient>[0];
+    type SettingsStoreLike = ServerSessionClientOptions["settingsStore"];
+    const client = new ServerSessionClient({
+      settingsStore: settingsStore as unknown as SettingsStoreLike,
+      onStatusChanged: vi.fn(),
+      onRemoteRecord: vi.fn()
+    });
+
+    const published = await client.publish({
+      id: "record-409",
+      createdAt: "2026-05-24T00:00:00.000Z",
+      sourceDeviceId: "server-device-1",
+      kind: "text",
+      title: "Hello",
+      textPreview: "Hello",
+      textContent: "Hello",
+      sizeBytes: 5,
+      storageMode: "metadata_only",
+      publishState: "local",
+      contentHash: "hash-409"
+    });
+
+    expect(published.publishState).toBe("published");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(String(fetchMock.mock.calls[1]?.[0])).toContain("/api/v1/records/record-409");
+  });
 });
 
 function makeSettings() {

@@ -22,4 +22,26 @@ describe("pasteTextIntoActiveApp", () => {
 
     expect(keyTap).toHaveBeenCalledWith("v", "command");
   });
+
+  it("sends the Windows paste accelerator", async () => {
+    const keyTap = vi.fn();
+    vi.doMock("electron", () => ({
+      clipboard: { writeText: vi.fn() },
+      nativeImage: {},
+      Notification: vi.fn(),
+      globalShortcut: { register: vi.fn(), unregisterAll: vi.fn() }
+    }));
+    vi.doMock("node:child_process", () => ({
+      execFile: vi.fn()
+    }));
+
+    const { pasteIntoActiveApp } = await import("../electron/clipboard/nativePasteService");
+
+    await pasteIntoActiveApp({
+      platform: "win32",
+      keyTap
+    });
+
+    expect(keyTap).toHaveBeenCalledWith("v", "control");
+  });
 });

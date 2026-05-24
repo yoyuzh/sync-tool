@@ -435,6 +435,60 @@ img {
   cursor: pointer;
 }
 
+.record-card__menu-trigger {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  color: var(--muted);
+  border: 1px solid transparent;
+  z-index: 2;
+}
+
+.record-card__menu-trigger:hover,
+.record-card__menu-trigger[aria-expanded="true"] {
+  background: var(--surface-strong);
+  color: var(--fg);
+  border-color: var(--border);
+}
+
+.record-card__menu {
+  position: absolute;
+  top: 50px;
+  right: 14px;
+  min-width: 132px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  z-index: 3;
+}
+
+.record-card__menu-item {
+  justify-content: flex-start;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.record-card__menu-item:hover {
+  background: var(--surface-strong);
+}
+
+.record-card__menu-item--danger {
+  color: var(--danger);
+}
+
+.record-card__menu-item--danger:hover {
+  background: color-mix(in oklch, var(--danger) 10%, var(--surface-strong));
+}
+
 .record-card:hover {
   border-color: var(--accent);
   box-shadow: var(--shadow-md);

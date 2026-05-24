@@ -47,6 +47,15 @@ export function registerIpc(options: RegisterIpcOptions): void {
     options.clipboardWatcher.writeRawText(record.textContent);
   });
 
+  ipcMain.handle(IPC_CHANNELS.historyDelete, async (_event, recordId: unknown) => {
+    if (!isRecordId(recordId)) {
+      throw new Error("无效的记录 ID");
+    }
+
+    await options.historyStore.remove(recordId);
+    await emitHistoryChanged(options);
+  });
+
   ipcMain.handle(IPC_CHANNELS.historyPublish, async (_event, recordId: unknown) => {
     if (!isRecordId(recordId)) {
       throw new Error("无效的记录 ID");

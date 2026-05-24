@@ -2,6 +2,7 @@ export const IPC_CHANNELS = {
   historyList: "sync-tool:history:list",
   historyGet: "sync-tool:history:get",
   historyCopy: "sync-tool:history:copy",
+  historyDelete: "sync-tool:history:delete",
   historyPublish: "sync-tool:history:publish",
   clipboardCaptureCurrent: "sync-tool:clipboard:capture-current",
   clipboardWriteText: "sync-tool:clipboard:write-text",

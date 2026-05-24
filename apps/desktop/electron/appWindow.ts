@@ -1,7 +1,9 @@
 import { BrowserWindow, app } from "electron";
 import path from "node:path";
+import { resolveWindowIconPath } from "./assets";
 
 export function createAppWindow(shouldQuit: () => boolean): BrowserWindow {
+  const icon = resolveWindowIconPath();
   const win = new BrowserWindow({
     width: 980,
     height: 760,
@@ -10,6 +12,7 @@ export function createAppWindow(shouldQuit: () => boolean): BrowserWindow {
     title: "sync-tool",
     show: true,
     titleBarStyle: "hiddenInset",
+    icon,
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
       contextIsolation: true,

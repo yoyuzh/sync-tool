@@ -191,15 +191,35 @@ export default function App() {
 
       try {
         await syncTool.history.publish(recordId);
+        pushToast("发送成功", "该记录已发送到服务器");
       } catch {
         setConnectionStatus((current) => ({
           ...current,
           state: "offline",
           lastError: "服务端离线，记录仍保留在本地"
         }));
+        pushToast("发送失败", "服务端离线，记录仍保留在本地");
       }
     },
-    [syncTool]
+    [pushToast, syncTool]
+  );
+
+  const deleteRecord = useCallback(
+    async (recordId: string) => {
+      if (!syncTool) {
+        setRecords((current) => current.filter((record) => record.id !== recordId));
+        pushToast("已删除", "该记录已从面板移除");
+        return;
+      }
+
+      try {
+        await syncTool.history.remove(recordId);
+        pushToast("已删除", "该记录已从本地历史移除");
+      } catch {
+        pushToast("删除失败", "无法删除这条记录");
+      }
+    },
+    [pushToast, syncTool]
   );
 
   const reconnect = useCallback(async () => {
@@ -294,6 +314,7 @@ export default function App() {
             viewMode={viewMode}
             onCopyRecord={copyRecord}
             onRequestTransfer={requestTransfer}
+            onDeleteRecord={deleteRecord}
           />
         </div>
       </main>

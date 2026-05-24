@@ -1,12 +1,13 @@
 {
   "name": "@sync-tool/desktop",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "main": "dist-electron/main.cjs",
   "scripts": {
+    "build:icons": "python3 scripts/build-icons.py",
     "dev": "vite",
-    "build": "pnpm run build:renderer && pnpm run build:electron",
+    "build": "pnpm run build:icons && pnpm run build:renderer && pnpm run build:electron",
     "build:renderer": "vite build",
     "build:electron": "tsup --config tsup.config.ts",
     "package:mac": "pnpm run build && electron-builder --config electron-builder.json --mac",
@@ -17,6 +18,7 @@
   },
   "dependencies": {
     "@sync-tool/shared": "workspace:*",
+    "electron-updater": "^6.8.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
@@ -25,8 +27,9 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^5.1.1",
-    "electron-builder": "^26.0.12",
     "electron": "^38.7.0",
+    "electron-builder": "^26.0.12",
+    "png-to-ico": "^3.0.1",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "vite": "^7.2.1",

@@ -1,5 +1,6 @@
 import type { ClipboardRecord } from "@sync-tool/shared";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { hashClipboardText } from "../electron/clipboard/clipboardNormalizer";
 
 const clipboardState = {
   text: "",
@@ -46,6 +47,47 @@ describe("ClipboardWatcher", () => {
     expect(second).toEqual(first);
     expect(historyStore.addLocalDraft).toHaveBeenCalledTimes(1);
   });
+
+  it("creates a new local record when the same clipboard text only matches a published record", async () => {
+    const { ClipboardWatcher } = await import("../electron/clipboard/clipboardWatcher");
+    type ClipboardWatcherOptions = ConstructorParameters<typeof ClipboardWatcher>[0];
+    const historyStore = createHistoryStore([
+      {
+        id: "remote-1",
+        createdAt: "2026-05-24T00:00:00.000Z",
+        updatedAt: "2026-05-24T00:00:00.000Z",
+        sourceDeviceId: "desktop-remote",
+        kind: "text",
+        title: "repeat me",
+        textPreview: "repeat me",
+        textContent: "repeat me",
+        mimeType: "text/plain",
+        sizeBytes: 9,
+        storageMode: "metadata_only",
+        publishState: "published",
+        contentHash: hashClipboardText("repeat me")
+      }
+    ]);
+    const onRecordCaptured = vi.fn();
+    const watcher = new ClipboardWatcher({
+      settingsStore: createSettingsStore() as unknown as ClipboardWatcherOptions["settingsStore"],
+      historyStore: historyStore as unknown as ClipboardWatcherOptions["historyStore"],
+      onRecordCaptured
+    });
+
+    clipboardState.text = "repeat me";
+    const captured = await watcher.captureCurrent();
+
+    expect(captured).toBeTruthy();
+    expect(captured?.id).not.toBe("remote-1");
+    expect(captured?.publishState).toBe("local");
+    expect(historyStore.addLocalDraft).toHaveBeenCalledTimes(1);
+    expect(onRecordCaptured).toHaveBeenCalledWith(
+      expect.objectContaining({
+        publishState: "local"
+      })
+    );
+  });
 });
 
 function createSettingsStore() {
@@ -67,8 +109,12 @@ function createSettingsStore() {
   };
 }
 
-function createHistoryStore() {
+function createHistoryStore(seedRecords: ClipboardRecord[] = []) {
   const records = new Map<string, ClipboardRecord>();
+  for (const record of seedRecords) {
+    records.set(record.contentHash ?? record.id, record);
+  }
+
   return {
     addLocalDraft: vi.fn(async (draft) => {
       const record = { ...draft, publishState: "local" as const };

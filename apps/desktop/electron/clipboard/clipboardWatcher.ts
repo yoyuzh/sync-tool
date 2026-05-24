@@ -51,12 +51,15 @@ export class ClipboardWatcher {
     }
 
     if (draft.contentHash && draft.contentHash === this.lastHash) {
-      return this.options.historyStore.getByContentHash(draft.contentHash);
+      const existingRecord = await this.options.historyStore.getByContentHash(draft.contentHash);
+      if (existingRecord?.publishState === "local") {
+        return existingRecord;
+      }
     }
 
     if (draft.contentHash) {
       const existingRecord = await this.options.historyStore.getByContentHash(draft.contentHash);
-      if (existingRecord) {
+      if (existingRecord?.publishState === "local") {
         this.lastHash = draft.contentHash;
         return existingRecord;
       }

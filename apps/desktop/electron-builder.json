@@ -4,15 +4,25 @@
   "directories": {
     "output": "release"
   },
+  "icon": "assets/icons/icon.png",
   "files": [
     "dist/**",
     "dist-electron/**",
+    "assets/**",
     "package.json"
   ],
   "extraMetadata": {
     "main": "dist-electron/main.cjs"
   },
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "yoyuzh",
+      "repo": "sync-tool"
+    }
+  ],
   "mac": {
+    "icon": "assets/icons/icon.icns",
     "target": [
       {
         "target": "dmg",
@@ -30,6 +40,7 @@
     "category": "public.app-category.productivity"
   },
   "win": {
+    "icon": "assets/icons/icon.ico",
     "target": [
       {
         "target": "nsis",

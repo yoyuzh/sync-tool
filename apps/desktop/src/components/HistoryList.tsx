@@ -6,13 +6,15 @@ interface HistoryListProps {
   viewMode: ViewMode;
   onCopyRecord: (recordId: string) => void;
   onRequestTransfer: (recordId: string) => void;
+  onDeleteRecord: (recordId: string) => void;
 }
 
 export function HistoryList({
   records,
   viewMode,
   onCopyRecord,
-  onRequestTransfer
+  onRequestTransfer,
+  onDeleteRecord
 }: HistoryListProps) {
   if (records.length === 0) {
     return (
@@ -36,6 +38,7 @@ export function HistoryList({
               viewMode={viewMode}
               onCopyRecord={onCopyRecord}
               onRequestTransfer={onRequestTransfer}
+              onDeleteRecord={onDeleteRecord}
             />
           ))}
         </div>

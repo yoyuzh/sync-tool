@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import type { UiRecord, ViewMode } from "../types/ui";
 import { StatusBadge } from "./StatusBadge";
 
@@ -6,6 +7,7 @@ interface RecordCardProps {
   viewMode: ViewMode;
   onCopyRecord: (recordId: string) => void;
   onRequestTransfer: (recordId: string) => void;
+  onDeleteRecord: (recordId: string) => void;
 }
 
 const KIND_LABELS = {
@@ -35,25 +37,115 @@ const STATUS_ICONS = {
   "transfer-pending": "TP"
 } as const;
 
-export function RecordCard({ record, viewMode, onCopyRecord, onRequestTransfer }: RecordCardProps) {
+export function RecordCard({
+  record,
+  viewMode,
+  onCopyRecord,
+  onRequestTransfer,
+  onDeleteRecord
+}: RecordCardProps) {
   const hasImage = Boolean(record.previewImageUrl);
   const isCode = record.kind === "text" && record.previewText?.includes("{");
   const canRequestTransfer = record.metadataOnly || record.status === "transfer-pending";
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!menuOpen) {
+      return;
+    }
+
+    const closeMenu = () => setMenuOpen(false);
+    const handlePointerDown = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) {
+        closeMenu();
+      }
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeMenu();
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [menuOpen]);
 
   return (
     <article
       className={`record-card record-card--${viewMode}`}
       onClick={() => onCopyRecord(record.id)}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        setMenuOpen(true);
+      }}
       role="button"
       tabIndex={0}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           onCopyRecord(record.id);
+          return;
+        }
+
+        if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) {
+          event.preventDefault();
+          setMenuOpen(true);
         }
       }}
       aria-label={`复制 ${record.title}`}
     >
+      <button
+        type="button"
+        className="record-card__menu-trigger"
+        aria-label={`打开 ${record.title} 操作菜单`}
+        aria-expanded={menuOpen}
+        onClick={(event) => {
+          event.stopPropagation();
+          setMenuOpen((current) => !current);
+        }}
+      >
+        ⋯
+      </button>
+
+      {menuOpen ? (
+        <div
+          ref={menuRef}
+          className="record-card__menu"
+          role="menu"
+          aria-label={`${record.title} 操作`}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <button
+            type="button"
+            className="record-card__menu-item"
+            role="menuitem"
+            onClick={() => {
+              setMenuOpen(false);
+              onRequestTransfer(record.id);
+            }}
+          >
+            发送
+          </button>
+          <button
+            type="button"
+            className="record-card__menu-item record-card__menu-item--danger"
+            role="menuitem"
+            onClick={() => {
+              setMenuOpen(false);
+              onDeleteRecord(record.id);
+            }}
+          >
+            删除
+          </button>
+        </div>
+      ) : null}
+
       <div className="record-card__header">
         <div className="record-card__identity">
           <div className="record-card__kind-icon" aria-hidden="true">

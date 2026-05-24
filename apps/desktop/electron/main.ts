@@ -1,4 +1,5 @@
 import { app, type BrowserWindow } from "electron";
+import { autoUpdater } from "electron-updater";
 import path from "node:path";
 import { ClipboardWatcher } from "./clipboard/clipboardWatcher";
 import { pasteIntoActiveApp } from "./clipboard/nativePasteService";
@@ -16,6 +17,7 @@ import { ServerSessionClient } from "./server/serverSessionClient";
 import { SettingsStore, type DesktopSettings } from "./settings/settingsStore";
 import { ShortcutRegistry } from "./shortcuts/shortcutRegistry";
 import { TrayService } from "./tray/trayService";
+import { startAutoUpdate } from "./update/updateService";
 
 let mainWindow: BrowserWindow | null = null;
 let isQuitting = false;
@@ -151,6 +153,12 @@ app.whenReady().then(async () => {
     mainWindow = null;
   });
   trayService.create();
+  startAutoUpdate({
+    isPackaged: app.isPackaged,
+    platform: process.platform,
+    updater: autoUpdater,
+    showStatus: (title, body) => notificationService.showStatus(title, body)
+  });
 
   await clipboardWatcher.start();
   registerShortcuts(initialSettings);

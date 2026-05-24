@@ -49,6 +49,7 @@ export interface SyncToolApi {
     list(): Promise<ClipboardRecord[]>;
     get(recordId: string): Promise<ClipboardRecord | null>;
     copy(recordId: string): Promise<void>;
+    remove(recordId: string): Promise<void>;
     publish(recordId: string): Promise<ClipboardRecord>;
   };
   clipboard: {

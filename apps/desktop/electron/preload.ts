@@ -15,6 +15,7 @@ const api: SyncToolApi = {
     list: () => ipcRenderer.invoke(IPC_CHANNELS.historyList) as Promise<ClipboardRecord[]>,
     get: (recordId) => ipcRenderer.invoke(IPC_CHANNELS.historyGet, recordId) as Promise<ClipboardRecord | null>,
     copy: (recordId) => ipcRenderer.invoke(IPC_CHANNELS.historyCopy, recordId) as Promise<void>,
+    remove: (recordId) => ipcRenderer.invoke(IPC_CHANNELS.historyDelete, recordId) as Promise<void>,
     publish: (recordId) =>
       ipcRenderer.invoke(IPC_CHANNELS.historyPublish, recordId) as Promise<ClipboardRecord>
   },

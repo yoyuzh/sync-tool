@@ -1,4 +1,5 @@
 import { Menu, Tray, nativeImage, type NativeImage } from "electron";
+import { resolveTrayIconPath } from "../assets";
 
 interface TrayServiceOptions {
   onShowPanel: () => void;
@@ -52,12 +53,9 @@ export class TrayService {
 }
 
 function createTrayIcon(): NativeImage {
-  const svg = encodeURIComponent(`
-    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
-      <rect x="2" y="2" width="14" height="14" rx="4" fill="#111827"/>
-      <path d="M5 6.2A2.2 2.2 0 0 1 7.2 4h2.4v2H7.2a.2.2 0 0 0-.2.2v5.6c0 .1.1.2.2.2h3.6c.1 0 .2-.1.2-.2v-1.6h2v1.6a2.2 2.2 0 0 1-2.2 2.2H7.2A2.2 2.2 0 0 1 5 11.8V6.2Z" fill="#f9fafb"/>
-      <path d="M10 4h4v4h-2V6.9L8.6 10.3 7.2 8.9 10.7 5.4H10V4Z" fill="#38bdf8"/>
-    </svg>
-  `);
-  return nativeImage.createFromDataURL(`data:image/svg+xml,${svg}`);
+  const icon = nativeImage.createFromPath(resolveTrayIconPath());
+  if (process.platform === "darwin") {
+    icon.setTemplateImage(true);
+  }
+  return icon;
 }
